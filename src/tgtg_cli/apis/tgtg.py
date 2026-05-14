@@ -202,9 +202,6 @@ class TGTG(BaseClient):
                                                    and the last response of all
                                                    retry attempts.
         """
-        # TODO: diese Klasse eher in Service Klasse verschieben und dann
-        #       übergeben? (z.B. client.py in cli/??)
-
         # API errors
         if response.status_code == 401:
             # Additional check to prevent infinite loops
@@ -461,6 +458,10 @@ class TGTG(BaseClient):
     ) -> AuthByEmailResult | DatadomeCaptchaResult:
         """
         Initiates the login process by requesting an email verification code.
+
+        Args:
+            device_type (str): Device type to use, e.g. 'ANDROID'.
+            email (str): Email address of the account to log in.
 
         Returns:
             AuthByEmailResult | DatadomeCaptchaResult: Result of the request
@@ -842,7 +843,3 @@ class TGTG(BaseClient):
             json=data,
         )
         return response.json()
-
-
-# TODO: API Schicht so umstellen, dass die volle Response zurückgesendet wird!
-#       Alles andere dann im Service machen!

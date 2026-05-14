@@ -13,12 +13,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-
-# TODOs:
-# TODO: in Docs vermerken --> dass Tools wie z.B. CleanMyMac den Cache und
-#       damit auch die Login Session löschen
-# TODO: nochmal Rich Optionen für Console und Live Display angucken, ist immer
-#       random, wann man welche der letzten Konsoleausgaben sieht und sieht
-#       nicht sauber aus
-# TODO: noch bestes Delay für Monitoren rausfinden
-# TODO: base.py auslagern oder als Protokoll?
