@@ -93,7 +93,7 @@ class OrderService:
             topic=self._config.settings.monitor.ntfy_topic,
             title="Item available!",
             message=(
-                f"The monitored item '{item_name}' is back in stock.\n"
+                f"The monitored item '{item_name}' (amount: {count}) is back in stock.\n"
                 f"Starting checkout..."
             ),
             headers={"tag": "bangbang"},

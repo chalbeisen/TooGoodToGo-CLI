@@ -173,7 +173,7 @@ class ProductService:
         custom_args["favorites_only"] = console.confirm_prompt.ask(
             "Favorites only"
         )
-
+        """
         # Item categories
         configure_item_categories = console.confirm_prompt.ask(
             "\nConfigure item categories"
@@ -238,10 +238,14 @@ class ProductService:
             custom_args["sort_option"] = sort_options_available[selection]
         else:
             custom_args["sort_option"] = "RELEVANCE"
-
+        """
         return custom_args
 
-    def monitor(self, selected_item: ItemOverview | None = None) -> None:
+    def monitor(
+        self,
+        selected_item: ItemOverview | None = None,
+        selected_count: int = 1,
+    ) -> None:
         """
         Monitors an item. Asks the user to configure filters, then searches for
         items matching the criteria and prompts the user to select one of them.
@@ -256,6 +260,8 @@ class ProductService:
                                                            be used to restart
                                                            the monitor.
                                                            Defaults to None.
+            selected_count (int, optional): Preferred quantity to order.
+                                            Defaults to 1.
 
         Raises:
             SettingsError: If checkout is enabled but payment details are
@@ -270,7 +276,7 @@ class ProductService:
         # Start filter configuration and item selection if no item is provided
         # (meaning it is the first time running the method)
         if not selected_item:
-
+            """
             # Optional custom filters
             custom_filter = console.confirm_prompt.ask(
                 "Customize search filter"
@@ -279,7 +285,8 @@ class ProductService:
             if custom_filter:
                 console.clear()
                 custom_args = self._configure_filters()
-
+            """
+            custom_args = self._configure_filters()
             # Print notice to console
             console.clear()
             with console.loading(
@@ -342,6 +349,21 @@ class ProductService:
                     )
                     continue
                 selected_item = items[selection - 1]
+                break
+            
+            while True:
+                count = console.int_prompt.ask(
+                    "\nSelect amount"
+                )
+                if not (
+                    all(num in string.digits for num in str(count))
+                    and count >= 1 ):
+                    console.error(
+                        "\nInvalid amount. "
+                        "Please enter a number bigger than zero."
+                    )
+                    continue
+                selected_count = count
                 break
 
         # Inner function for Rich's live display
@@ -408,11 +430,13 @@ class ProductService:
         # the checkout process
         payment_service = OrderService(config=self._config, tgtg=self._tgtg)
         order_successful = False
+        count_to_order = min(selected_count, items_available)
         while not order_successful:
             console.clear()
             order_successful = payment_service.checkout_item(
                 item_id=selected_item.id,
                 item_name=selected_item.name,
+                count=count_to_order,
             )
             if not order_successful:
                 items_available = self._get_item_availability(
@@ -426,8 +450,12 @@ class ProductService:
                         "Restarting monitoring...",
                         show_time=True,
                     )
-                    return self.monitor(selected_item=selected_item)
+                    return self.monitor(
+                        selected_item=selected_item,
+                        selected_count=selected_count,
+                    )
                 else:
+                    count_to_order = min(selected_count, items_available)
                     console.info("Starting another checkout attempt...")
                     continue
         return
